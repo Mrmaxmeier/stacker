@@ -168,7 +168,9 @@ tests! {
             let init_stack_ptr = crate::stack_pointer();
             let new_stack = alloc_stack(4096 * 64);
             crate::replace_stack(new_stack, 4096 * 64, || {
-                assert!(ptr_distance(crate::stack_pointer() as _, init_stack_ptr as _) > 0x100_0000);
+                // Note: new_stack is allocated near the initial stack in some cases.
+                //       This could assert a "address space gap" distance for _normal_ setups.
+                assert!(ptr_distance(crate::stack_pointer() as _, init_stack_ptr as _) > 4096 * 64);
                 assert!(ptr_distance(crate::stack_pointer() as _, new_stack as _) < 4096 * 64);
                 std::process::exit(0)
             });
