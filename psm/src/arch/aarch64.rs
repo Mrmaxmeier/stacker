@@ -26,7 +26,7 @@ pub(crate) unsafe extern "C" fn replace_stack(
         "udf #0",
         new_sp = in(reg) sp,
         callback = in(reg) callback,
-        in("r0") data,
+        in("x0") data,
         options(noreturn, nostack),
     }
 }
@@ -47,7 +47,7 @@ core::arch::global_asm! {
     "blr x2",
     "mov sp, fp",
     ".cfi_def_cfa_register sp",
-    "ldp fp, lr, [fp], #16",
+    "ldp fp, lr, [sp], #16",
     "ret",
     ".cfi_endproc",
 }
