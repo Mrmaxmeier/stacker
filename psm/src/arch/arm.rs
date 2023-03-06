@@ -23,7 +23,7 @@ pub(crate) unsafe extern "aapcs" fn replace_stack(
     core::arch::asm! {
         "mov sp, {new_sp}",
         "bx {callback}",
-        "ud2",
+        "udf #0",
         new_sp = in(reg) sp,
         callback = in(reg) callback,
         in("r0") data,
@@ -35,11 +35,11 @@ core::arch::global_asm! {
     ".balign 8",
     ".local rust_psm_on_stack",
     ".hidden rust_psm_on_stack",
-    ".type rust_psm_on_stack,@function",
+    ".type rust_psm_on_stack STT_FUNC",
     "rust_psm_on_stack:",
     ".fnstart",
     ".cfi_startproc",
-    "push {fp, lr}",
+    "push {{fp, lr}}",
     ".cfi_def_cfa_offset 8",
     ".cfi_offset lr, -4",
     ".cfi_offset fp, -8",
@@ -48,7 +48,7 @@ core::arch::global_asm! {
     "mov sp, r3",
     "blx r2",
     "mov sp, fp",
-    "pop {fp, pc}",
+    "pop {{fp, pc}}",
     ".cfi_endproc",
     ".fnend",
 }
@@ -61,7 +61,7 @@ pub(crate) unsafe extern "aapcs" fn on_stack(
     _: *mut u8,
 ) {
     core::arch::asm! {
-        "call rust_psm_on_stack",
+        "bl rust_psm_on_stack",
         in("r0") data,
         in("r1") return_ptr,
         in("r2") callback,
