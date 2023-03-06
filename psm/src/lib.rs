@@ -154,7 +154,7 @@ unsafe fn rust_psm_on_stack(
 /// less than 4kB of memory may make it impossible to commit more pages without overflowing the
 /// stack later on.
 ///
-/// # Unsafety
+/// # Safety
 ///
 /// The stack `base` address must be aligned as appropriate for the target.
 ///
@@ -194,7 +194,7 @@ pub unsafe fn on_stack<R, F: FnOnce() -> R>(base: *mut u8, size: usize, callback
     }
     let sp = match StackDirection::new() {
         StackDirection::Ascending => base,
-        StackDirection::Descending => base.offset(size as isize),
+        StackDirection::Descending => base.add(size),
     };
     let mut callback: MaybeUninit<F> = MaybeUninit::new(callback);
     let mut return_value: MaybeUninit<R> = MaybeUninit::uninit();
@@ -212,7 +212,8 @@ pub unsafe fn on_stack<R, F: FnOnce() -> R>(base: *mut u8, size: usize, callback
     //     sp,
     //     base,
     // );
-    return return_value.assume_init();
+
+    return_value.assume_init()
 }
 
 /// Run the provided non-terminating computation on an entirely new stack.
@@ -248,7 +249,7 @@ pub unsafe fn on_stack<R, F: FnOnce() -> R>(base: *mut u8, size: usize, callback
 /// less than 4kB of memory may make it impossible to commit more pages without overflowing the
 /// stack later on.
 ///
-/// # Unsafety
+/// # Safety
 ///
 /// The stack `base` address must be aligned as appropriate for the target.
 ///
@@ -267,7 +268,7 @@ pub unsafe fn replace_stack<F: FnOnce()>(base: *mut u8, size: usize, callback: F
     } }
     let sp = match StackDirection::new() {
         StackDirection::Ascending => base,
-        StackDirection::Descending => base.offset(size as isize),
+        StackDirection::Descending => base.add(size),
     };
     arch::replace_stack(
         &callback as *const F as usize,
@@ -300,6 +301,12 @@ impl StackDirection {
         //         _ => ::core::hint::unreachable_unchecked(),
         //     }
         // }
+    }
+}
+
+impl Default for StackDirection {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

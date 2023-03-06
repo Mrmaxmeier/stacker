@@ -78,9 +78,9 @@ fn main() {
 
     if !msvc {
         cfg.flag("-xassembler-with-cpp");
-        cfg.define(&*format!("CFG_TARGET_OS_{}", os), None);
-        cfg.define(&*format!("CFG_TARGET_ARCH_{}", arch), None);
-        cfg.define(&*format!("CFG_TARGET_ENV_{}", env), None);
+        cfg.define(&format!("CFG_TARGET_OS_{}", os), None);
+        cfg.define(&format!("CFG_TARGET_ARCH_{}", arch), None);
+        cfg.define(&format!("CFG_TARGET_ENV_{}", env), None);
     }
 
     // For wasm targets we ship a precompiled `*.o` file so we just pass that
