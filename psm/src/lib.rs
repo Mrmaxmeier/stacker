@@ -56,71 +56,6 @@ macro_rules! extern_item {
     };
 }
 
-// NB: this could be nicer across multiple blocks but we cannot do it because of
-// https://github.com/rust-lang/rust/issues/65847
-extern_item! { {
-    #![cfg_attr(asm, link(name="psm_s"))]
-
-    #[cfg(asm)]
-    fn rust_psm_stack_direction() -> u8;
-    #[cfg(asm)]
-    fn rust_psm_stack_pointer() -> *mut u8;
-
-    #[cfg(all(switchable_stack, not(target_os = "windows")))]
-    #[link_name="rust_psm_replace_stack"]
-    fn _rust_psm_replace_stack(
-        data: usize,
-        callback: extern_item!(unsafe fn(usize) -> !),
-        sp: *mut u8
-    ) -> !;
-    #[cfg(all(switchable_stack, not(target_os = "windows")))]
-    #[link_name="rust_psm_on_stack"]
-    fn _rust_psm_on_stack(
-        data: usize,
-        return_ptr: usize,
-        callback: extern_item!(unsafe fn(usize, usize)),
-        sp: *mut u8,
-    );
-    #[cfg(all(switchable_stack, target_os = "windows"))]
-    fn rust_psm_replace_stack(
-        data: usize,
-        callback: extern_item!(unsafe fn(usize) -> !),
-        sp: *mut u8,
-        stack_base: *mut u8
-    ) -> !;
-    #[cfg(all(switchable_stack, target_os = "windows"))]
-    fn rust_psm_on_stack(
-        data: usize,
-        return_ptr: usize,
-        callback: extern_item!(unsafe fn(usize, usize)),
-        sp: *mut u8,
-        stack_base: *mut u8
-    );
-} }
-
-#[cfg(all(switchable_stack, not(target_os = "windows")))]
-#[inline(always)]
-unsafe fn rust_psm_replace_stack(
-    data: usize,
-    callback: extern_item!(unsafe fn(usize) -> !),
-    sp: *mut u8,
-    _: *mut u8,
-) -> ! {
-    _rust_psm_replace_stack(data, callback, sp)
-}
-
-#[cfg(all(switchable_stack, not(target_os = "windows")))]
-#[inline(always)]
-unsafe fn rust_psm_on_stack(
-    data: usize,
-    return_ptr: usize,
-    callback: extern_item!(unsafe fn(usize, usize)),
-    sp: *mut u8,
-    _: *mut u8,
-) {
-    _rust_psm_on_stack(data, return_ptr, callback, sp)
-}
-
 /// Run the closure on the provided stack.
 ///
 /// Once the closure completes its execution, the original stack pointer is restored and execution
@@ -292,15 +227,6 @@ impl StackDirection {
     /// Obtain the stack growth direction.
     pub fn new() -> StackDirection {
         arch::stack_direction()
-        // const ASC: u8 = StackDirection::Ascending as u8;
-        // const DSC: u8 = StackDirection::Descending as u8;
-        // unsafe {
-        //     match rust_psm_stack_direction() {
-        //         ASC => StackDirection::Ascending,
-        //         DSC => StackDirection::Descending,
-        //         _ => ::core::hint::unreachable_unchecked(),
-        //     }
-        // }
     }
 }
 
