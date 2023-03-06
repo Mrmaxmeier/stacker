@@ -22,6 +22,7 @@ pub(crate) unsafe fn replace_stack(
 ) -> ! {
     core::arch::asm! {
         "lea esp, [{sp} - 12]",
+        "sub esp, 8", // 16b align
         "jmp {callback}",
         sp = in(reg) sp,
         callback = in(reg) callback,
