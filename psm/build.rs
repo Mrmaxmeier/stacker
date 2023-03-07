@@ -1,5 +1,15 @@
 extern crate cc;
 
+fn find_inline_asm(arch: &str, endian: &str, os: &str, env: &str) -> Option<bool> {
+    match (arch, endian, os, env) {
+        ("x86" | "x86_64", _, _, _) => Some(true),
+        ("arm" | "aarch64", _, _, _) => Some(true),
+        // TODO
+        // ("riscv32" | "riscv64", _, _, _) => Some(true),
+        _ => None
+    }
+}
+
 fn find_assembly(
     arch: &str,
     endian: &str,
@@ -53,7 +63,6 @@ fn main() {
 
     let mut cfg = cc::Build::new();
 
-    let msvc = cfg.get_compiler().is_like_msvc();
     // If we're targeting msvc, either via regular MS toolchain or clang-cl, we
     // will _usually_ want to use the regular Microsoft assembler if it exists,
     // which is done for us within cc, however it _probably_ won't exist if
@@ -61,7 +70,17 @@ fn main() {
     // run Windows executables, so in that case we instead use the the equivalent
     // GAS assembly file instead. This logic can be removed once LLVM natively
     // supports compiling MASM, but that is not stable yet
+    let msvc = cfg.get_compiler().is_like_msvc();
+
     let masm = msvc && var("HOST").expect("HOST env not set").contains("windows");
+
+    if let Some(canswitch) = find_inline_asm(&arch, &endian, &os, &env) {
+        if canswitch {
+            println!("cargo:rustc-cfg=switchable_stack")
+        }
+        // These targets support inline assembly and don't need any externally assembled support code.
+        return;
+    }
 
     let asm = if let Some((asm, canswitch)) = find_assembly(&arch, &endian, &os, &env, masm) {
         println!("cargo:rustc-cfg=asm");
