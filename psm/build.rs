@@ -2,11 +2,18 @@ extern crate cc;
 
 fn find_inline_asm(arch: &str, endian: &str, os: &str, env: &str) -> Option<bool> {
     match (arch, endian, os, env) {
+        // fall back to externally-assembled snippets for windows for now
+        (_, _, "windows", _) => None,
+
+        // TODO: inline assembly is missing directives on macOS? they are supposed to be supported
+        // platform-independently though according to the docs.
+        (_, _, "macos", _) => None,
+
         ("x86" | "x86_64", _, _, _) => Some(true),
         ("arm" | "aarch64", _, _, _) => Some(true),
         // TODO
         // ("riscv32" | "riscv64", _, _, _) => Some(true),
-        _ => None
+        _ => None,
     }
 }
 
@@ -22,18 +29,17 @@ fn find_assembly(
         // is not supported in Windows. For x86_64 the implementation actually works locally,
         // but failed tests in CI (???). Might want to have a feature for experimental support
         // here.
-
-        // ("x86", _, "windows", _) if masm => Some(("src/arch/x86_msvc.asm", true)),
-        // ("x86", _, "windows", _) => Some(("src/arch/x86_windows_gnu.s", true)),
-        // ("x86_64", _, "windows", _) if masm => Some(("src/arch/x86_64_msvc.asm", true)),
-        // ("x86_64", _, "windows", _) => Some(("src/arch/x86_64_windows_gnu.s", true)),
-        // ("arm", _, "windows", "msvc") => Some(("src/arch/arm_armasm.asm", true)),
-        // ("aarch64", _, "windows", _) if masm => Some(("src/arch/aarch64_armasm.asm", true)),
-        // ("aarch64", _, "windows", _) => Some(("src/arch/aarch_aapcs64.s", true)),
-        // ("x86", _, _, _) => Some(("src/arch/x86.s", false)),
-        // ("x86_64", _, _, _) => Some(("src/arch/x86_64.s", false)),
-        // ("arm", _, _, _) => Some(("src/arch/arm_aapcs.s", true)),
-        // ("aarch64", _, _, _) => Some(("src/arch/aarch_aapcs64.s", true)),
+        ("x86", _, "windows", _) if masm => Some(("src/arch/x86_msvc.asm", true)),
+        ("x86", _, "windows", _) => Some(("src/arch/x86_windows_gnu.s", true)),
+        ("x86_64", _, "windows", _) if masm => Some(("src/arch/x86_64_msvc.asm", true)),
+        ("x86_64", _, "windows", _) => Some(("src/arch/x86_64_windows_gnu.s", true)),
+        ("arm", _, "windows", "msvc") => Some(("src/arch/arm_armasm.asm", true)),
+        ("aarch64", _, "windows", _) if masm => Some(("src/arch/aarch64_armasm.asm", true)),
+        ("aarch64", _, "windows", _) => Some(("src/arch/aarch_aapcs64.s", true)),
+        ("x86", _, _, _) => Some(("src/arch/x86.s", false)),
+        ("x86_64", _, _, _) => Some(("src/arch/x86_64.s", false)),
+        ("arm", _, _, _) => Some(("src/arch/arm_aapcs.s", true)),
+        ("aarch64", _, _, _) => Some(("src/arch/aarch_aapcs64.s", true)),
         ("powerpc", _, _, _) => Some(("src/arch/powerpc32.s", true)),
         ("powerpc64", _, _, "musl") => Some(("src/arch/powerpc64_openpower.s", true)),
         ("powerpc64", "little", _, _) => Some(("src/arch/powerpc64_openpower.s", true)),
@@ -44,7 +50,6 @@ fn find_assembly(
         ("mips64", _, _, _) => Some(("src/arch/mips64_eabi.s", true)),
         ("sparc64", _, _, _) => Some(("src/arch/sparc64.s", true)),
         ("sparc", _, _, _) => Some(("src/arch/sparc_sysv.s", true)),
-        // TODO: riscv inline assembly is supported by Rust
         ("riscv32", _, _, _) => Some(("src/arch/riscv.s", true)),
         ("riscv64", _, _, _) => Some(("src/arch/riscv64.s", true)),
         ("wasm32", _, _, _) => Some(("src/arch/wasm32.o", true)),

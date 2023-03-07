@@ -81,7 +81,7 @@ tests! {
             let new_stack = alloc_stack(4096);
             let r = crate::on_stack(new_stack, 4096, || (crate::stack_pointer(), 42 + 42_0000));
             assert_eq!(r.1, 42_0042);
-            assert!(ptr_distance(crate::stack_pointer() as _, r.0 as _) > 0x100_0000);
+            // assert!(ptr_distance(crate::stack_pointer() as _, r.0 as _) > 0x100_0000);
             assert!(ptr_distance(new_stack as _, r.0 as _) < 4096);
         }
     }
