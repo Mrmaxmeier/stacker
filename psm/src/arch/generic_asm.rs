@@ -1,48 +1,6 @@
 use crate::StackDirection;
 
-macro_rules! extern_item {
-    (unsafe $($toks: tt)+) => {
-        unsafe extern "C" $($toks)+
-    };
-    (pub(crate) unsafe $($toks: tt)+) => {
-        pub(crate) unsafe extern "C" $($toks)+
-    };
-    ($($toks: tt)+) => {
-        extern "C" $($toks)+
-    };
-}
-
-// Surprising: turns out subsequent macro_rules! override previous definitions, instead of
-// erroring? Convenient for us in this case, though.
-#[cfg(target_arch = "x86_64")]
-macro_rules! extern_item {
-    (unsafe $($toks: tt)+) => {
-        unsafe extern "sysv64" $($toks)+
-    };
-    ($($toks: tt)+) => {
-        extern "sysv64" $($toks)+
-    };
-}
-
-#[cfg(target_arch = "x86")]
-macro_rules! extern_item {
-    (unsafe $($toks: tt)+) => {
-        unsafe extern "fastcall" $($toks)+
-    };
-    ($($toks: tt)+) => {
-        extern "fastcall" $($toks)+
-    };
-}
-
-#[cfg(target_arch = "arm")]
-macro_rules! extern_item {
-    (unsafe $($toks: tt)+) => {
-        unsafe extern "aapcs" $($toks)+
-    };
-    ($($toks: tt)+) => {
-        extern "aapcs" $($toks)+
-    };
-}
+use crate::extern_item;
 
 // NB: this could be nicer across multiple blocks but we cannot do it because of
 // https://github.com/rust-lang/rust/issues/65847
