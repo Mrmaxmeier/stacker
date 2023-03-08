@@ -2,13 +2,6 @@ extern crate cc;
 
 fn find_inline_asm(arch: &str, endian: &str, os: &str, env: &str) -> Option<bool> {
     match (arch, endian, os, env) {
-        // fall back to externally-assembled snippets for windows for now
-        (_, _, "windows", _) => None,
-
-        // TODO: inline assembly is missing directives on macOS? they are supposed to be supported
-        // platform-independently though according to the docs.
-        (_, _, "macos", _) => None,
-
         ("x86" | "x86_64", _, _, _) => Some(true),
         ("arm" | "aarch64", _, _, _) => Some(true),
         // TODO

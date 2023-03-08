@@ -30,6 +30,21 @@ pub(crate) unsafe fn replace_stack(
     }
 }
 
+// TODO: why is is `.type` not available on the macOS targets?
+#[cfg(target_os = "macos")]
+core::arch::global_asm! {
+    ".balign 16",
+    "rust_psm_on_stack:",
+    ".cfi_startproc",
+    "xchg rsp, r12",
+    ".cfi_def_cfa_register r12",
+    "call rdx",
+    "mov rsp, r12",
+    "ret",
+    ".cfi_endproc",
+}
+
+#[cfg(not(target_os = "macos"))]
 core::arch::global_asm! {
     ".balign 16",
     ".local rust_psm_on_stack",
