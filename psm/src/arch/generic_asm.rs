@@ -1,7 +1,5 @@
 use crate::StackDirection;
 
-use crate::extern_item;
-
 // NB: this could be nicer across multiple blocks but we cannot do it because of
 // https://github.com/rust-lang/rust/issues/65847
 extern_item! { {

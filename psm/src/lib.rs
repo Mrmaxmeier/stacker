@@ -1,5 +1,4 @@
 #![doc=include_str!("../README.mkd")]
-#![allow(unused_macros)]
 #![cfg_attr(not(test), no_std)]
 
 #[cfg(test)]
@@ -13,11 +12,14 @@ fn main() {
     tests::run();
 }
 
-mod arch;
-
+// TODO: is there a way to reduce this to one rule per variant?
+#[allow(unused_macros)] // we shadow extern_item for a few archs
 macro_rules! extern_item {
     (unsafe $($toks: tt)+) => {
         unsafe extern "C" $($toks)+
+    };
+    (pub(crate) unsafe $($toks: tt)+) => {
+        pub(crate) unsafe extern "C" $($toks)+
     };
     ($($toks: tt)+) => {
         extern "C" $($toks)+
@@ -31,6 +33,9 @@ macro_rules! extern_item {
     (unsafe $($toks: tt)+) => {
         unsafe extern "sysv64" $($toks)+
     };
+    (pub(crate) unsafe $($toks: tt)+) => {
+        unsafe extern "sysv64" $($toks)+
+    };
     ($($toks: tt)+) => {
         extern "sysv64" $($toks)+
     };
@@ -39,6 +44,9 @@ macro_rules! extern_item {
 #[cfg(target_arch = "x86")]
 macro_rules! extern_item {
     (unsafe $($toks: tt)+) => {
+        unsafe extern "fastcall" $($toks)+
+    };
+    (pub(crate) unsafe $($toks: tt)+) => {
         unsafe extern "fastcall" $($toks)+
     };
     ($($toks: tt)+) => {
@@ -51,10 +59,15 @@ macro_rules! extern_item {
     (unsafe $($toks: tt)+) => {
         unsafe extern "aapcs" $($toks)+
     };
+    (pub(crate) unsafe $($toks: tt)+) => {
+        unsafe extern "aapcs" $($toks)+
+    };
     ($($toks: tt)+) => {
         extern "aapcs" $($toks)+
     };
 }
+
+mod arch;
 
 /// Run the closure on the provided stack.
 ///
