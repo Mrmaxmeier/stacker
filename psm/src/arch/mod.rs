@@ -20,7 +20,10 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_arch="aarch64")] {
         #[path = "aarch64.rs"]
         mod imp;
-    } else {
+    } else if #[cfg(any(target_arch="riscv32", target_arch="riscv64"))] {
+        #[path = "riscv.rs"]
+        mod imp;
+    }else {
         compile_error!("Target is not supported by the `psm` crate!");
     }
 }

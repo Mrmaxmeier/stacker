@@ -4,8 +4,7 @@ fn find_inline_asm(arch: &str, endian: &str, os: &str, env: &str) -> Option<bool
     match (arch, endian, os, env) {
         ("x86" | "x86_64", _, _, _) => Some(true),
         ("arm" | "aarch64", _, _, _) => Some(true),
-        // TODO
-        // ("riscv32" | "riscv64", _, _, _) => Some(true),
+        ("riscv32" | "riscv64", _, _, _) => Some(true),
         _ => None,
     }
 }
