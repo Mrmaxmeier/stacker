@@ -53,6 +53,9 @@ fn find_assembly(
 fn main() {
     use std::env::var;
 
+    println!("cargo:rustc-check-cfg=cfg(asm)");
+    println!("cargo:rustc-check-cfg=cfg(switchable_stack)");
+
     let arch = var("CARGO_CFG_TARGET_ARCH").unwrap();
     let env = var("CARGO_CFG_TARGET_ENV").unwrap();
     let os = var("CARGO_CFG_TARGET_OS").unwrap();

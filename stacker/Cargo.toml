@@ -12,6 +12,7 @@ description = """
 A stack growth library useful when implementing deeply recursive algorithms that
 may accidentally blow the stack.
 """
+edition = "2021"
 
 [lib]
 name = "stacker"
