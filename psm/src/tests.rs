@@ -76,7 +76,18 @@ tests! {
         test_direction(crate::stack_pointer());
     }
 
-    fn basic_on_stack() {
+    fn basic_on_stack_callback() {
+        unsafe {
+            let new_stack = alloc_stack(4096);
+            let mut ctr = 0usize;
+            crate::on_stack(new_stack, 4096, || {
+                ctr += 1;
+            });
+            assert_eq!(ctr, 1);
+        }
+    }
+
+    fn basic_on_stack_sp() {
         unsafe {
             let new_stack = alloc_stack(4096);
             let r = crate::on_stack(new_stack, 4096, || (crate::stack_pointer(), 42 + 42_0000));
@@ -90,12 +101,27 @@ tests! {
     fn on_stack_basic_backtrace() {
         let bt = unsafe {
             let new_stack = alloc_stack(128 * 4096);
+            dbg!();
             crate::on_stack(new_stack, 128 * 4096, rust_psm_test_get_bt)
         };
 
         let test_get_bt_frame = find_frame_name(&bt, b"rust_psm_test_get_bt");
         assert!(test_get_bt_frame.is_some());
         assert!(bt.frames().len() > test_get_bt_frame.unwrap().0 + 4);
+    }
+
+
+    #[inline(never)]
+    #[no_mangle]
+    fn on_stack_backtrace_stacks_chain() {
+        let bt = unsafe {
+            let new_stack = alloc_stack(128 * 4096);
+            crate::on_stack(new_stack, 128 * 4096, rust_psm_test_get_bt)
+        };
+
+        // make sure that we the first frame on the new stack properly points to our old stack
+        let frame = find_frame_name(&bt, b"on_stack_backtrace_stacks_chain");
+        assert!(frame.is_some());
     }
 
 

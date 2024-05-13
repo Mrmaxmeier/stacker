@@ -48,24 +48,27 @@ core::arch::global_asm! {
     "mov sp, r3",
     "blx r2",
     "mov sp, fp",
+    ".cfi_def_cfa_register sp",
     "pop {{fp, pc}}",
     ".cfi_endproc",
     ".fnend",
 }
 
-pub(crate) unsafe extern "aapcs" fn on_stack(
+extern "aapcs" {
+    fn rust_psm_on_stack(
+        data: usize,
+        return_ptr: usize,
+        callback: unsafe extern "aapcs" fn(usize, usize),
+        sp: *mut u8,
+    );
+}
+
+pub(crate) unsafe fn on_stack(
     data: usize,
     return_ptr: usize,
     callback: unsafe extern "aapcs" fn(usize, usize),
     sp: *mut u8,
     _: *mut u8,
 ) {
-    core::arch::asm! {
-        "bl rust_psm_on_stack",
-        in("r0") data,
-        in("r1") return_ptr,
-        in("r2") callback,
-        in("r3") sp,
-        clobber_abi("aapcs"),
-    }
+    rust_psm_on_stack(data, return_ptr, callback, sp)
 }
