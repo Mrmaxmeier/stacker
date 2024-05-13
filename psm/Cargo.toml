@@ -9,8 +9,8 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/rust-lang/stacker/"
 documentation = "https://docs.rs/psm/0.1.20"
 readme = "README.mkd"
-# inline assembly was stabilized in 1.59
-rust-version = "1.59"
+# recent `cc` requires rustc 1.63 or newer
+rust-version = "1.63"
 edition = "2021"
 
 [lib]
