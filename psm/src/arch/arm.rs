@@ -33,7 +33,7 @@ pub(crate) unsafe extern "aapcs" fn replace_stack(
 
 core::arch::global_asm! {
     ".balign 8",
-    ".local rust_psm_on_stack",
+    ".globl rust_psm_on_stack",
     ".hidden rust_psm_on_stack",
     ".type rust_psm_on_stack STT_FUNC",
     "rust_psm_on_stack:",

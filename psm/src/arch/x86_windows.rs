@@ -32,7 +32,7 @@ pub(crate) unsafe fn replace_stack(
 
 core::arch::global_asm! {
     ".balign 16",
-    ".local rust_psm_on_stack",
+    ".globl rust_psm_on_stack",
     ".hidden rust_psm_on_stack",
     ".type rust_psm_on_stack,@function",
     "rust_psm_on_stack:",

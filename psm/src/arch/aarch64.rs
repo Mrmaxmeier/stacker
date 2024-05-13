@@ -54,7 +54,7 @@ core::arch::global_asm! {
 #[cfg(not(any(target_os = "macos", target_os = "ios")))]
 core::arch::global_asm! {
     ".balign 8",
-    ".local rust_psm_on_stack",
+    ".globl rust_psm_on_stack",
     ".hidden rust_psm_on_stack",
     ".type rust_psm_on_stack,@function",
     "rust_psm_on_stack:",
