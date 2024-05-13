@@ -92,9 +92,8 @@ jobs:
           - i686-unknown-linux-musl
           - mips64el-unknown-linux-gnuabi64
           - mips64-unknown-linux-gnuabi64
-          # https://github.com/rust-lang/rust/issues/108835
-          # - mipsel-unknown-linux-gnu
-          # - mips-unknown-linux-gnu
+          - mipsel-unknown-linux-gnu
+          - mips-unknown-linux-gnu
           - powerpc64le-unknown-linux-gnu
           - powerpc64-unknown-linux-gnu
           - powerpc-unknown-linux-gnu
@@ -104,6 +103,7 @@ jobs:
           - sparc64-unknown-linux-gnu
           # - x86_64-linux-android
           - x86_64-unknown-freebsd
+          - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
           - x86_64-unknown-netbsd
         mode: ['--release', '-Zminimal-versions', '']
